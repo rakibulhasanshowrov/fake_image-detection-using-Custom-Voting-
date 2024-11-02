@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Prediction</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .text-fake {
+            color: red;
+            font-weight: bold;
+        }
+        .text-real {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Image Prediction</h1>
+
+        <div class="card shadow p-4">
+            {% if image_url %}
+                <div class="text-center mb-3">
+                    <h5>Uploaded Image:</h5>
+                    <img src="{{ image_url }}" alt="Uploaded Image" class="img-fluid rounded" style="max-width: 300px;">
+                </div>
+            {% else %}
+                <p class="text-center text-muted">No image uploaded</p>
+            {% endif %}
+
+            <form action="{% url 'dpfake:upload_and_predict' %}" method="post" enctype="multipart/form-data" class="text-center">
+                {% csrf_token %}
+                <div class="mb-3 mx-auto">
+                    <label for="image" class="form-label">Upload Image:</label>
+                    <input type="file" name="image" id="image" class="form-control w-50 mx-auto" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Predict</button>
+            </form>
+
+            {% if error %}
+                <p class="text-danger mt-3 text-center">Error: {{ error }}</p>
+            {% elif svm_prediction and rf_prediction and efficientnet_prediction %}
+                <h2 class="mt-4">Final Prediction:</h2>
+                <div class="alert alert-info text-center">
+                    {% if final_prediction.class == 0 %}
+                        <p class=""><strong>Class:</strong> <span class="text-fake">Fake</span></p>
+                    {% else %}
+                        <p class=""><strong>Class:</strong> <span class="text-real">Real</span></p>
+                    {% endif %}
+                    <p><strong>Average Confidence:</strong> {{ final_prediction.confidence|floatformat:4 }}</p>
+                </div>
+
+                <h2 class="mt-4">Results:</h2>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>SVM Prediction:</strong> Class {{ svm_prediction.class }}, Confidence {{ svm_prediction.confidence|floatformat:4 }}</li>
+                    <li class="list-group-item"><strong>Random Forest Prediction:</strong> Class {{ rf_prediction.class }}, Confidence {{ rf_prediction.confidence|floatformat:4 }}</li>
+                    <li class="list-group-item"><strong>EfficientNet Prediction:</strong> Class {{ efficientnet_prediction.class }}, Confidence {{ efficientnet_prediction.confidence|floatformat:4 }}</li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

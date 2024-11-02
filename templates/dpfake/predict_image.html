@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Prediction</title>
+</head>
+<body>
+    <h1>Image Prediction</h1>
+
+    <form action="{% url 'dpfake:upload_and_predict' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="image">Upload Image:</label>
+        <input type="file" name="image" id="image" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if error %}
+        <p style="color: red;">Error: {{ error }}</p>
+    {% elif svm_prediction and rf_prediction and efficientnet_prediction %}
+        <h2>Results:</h2>
+        <p><strong>SVM Prediction:</strong> Class {{ svm_prediction.class }}, Confidence {{ svm_prediction.confidence|floatformat:4 }}</p>
+        <p><strong>Random Forest Prediction:</strong> Class {{ rf_prediction.class }}, Confidence {{ rf_prediction.confidence|floatformat:4 }}</p>
+        <p><strong>EfficientNet Prediction:</strong> Class {{ efficientnet_prediction.class }}, Confidence {{ efficientnet_prediction.confidence|floatformat:4 }}</p>
+        
+        {% if image_path %}
+            <h3>Uploaded Image:</h3>
+            <img src="{{ image_path }}" alt="Uploaded Image" style="max-width: 300px;"/>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
